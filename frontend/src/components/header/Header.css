@@ -16,6 +16,9 @@
     padding-left: 40px;
 }
 
+.header-links {
+    display: flex;
+}
 
 
 
