@@ -63,3 +63,6 @@
     background-color: red;
 }
 
+.product-add-button:active {
+    transform: translate(2px);
+}
