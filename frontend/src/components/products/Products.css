@@ -59,4 +59,7 @@
     margin: 15px auto;
 }
 
+.product-add-button:hover {
+    background-color: red;
+}
 
