@@ -1,80 +1,79 @@
-import './App.css';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Products from './components/products/Products.jsx';
-import SignUp from './components/signup/SignUp.jsx';
-import Cart from './components/cart/Cart.jsx';
-import { Component } from 'react';
-import Header from './components/header/Header.jsx';
+import React, { Component, useEffect, useState } from 'react'
+import './Products.css';
+import Dropdown from 'react-bootstrap/Dropdown';
+// import DropdownButton from 'react-bootstrap/DropdownButton';
 
-export default class App extends Component {
+export default class Products extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      cartItems: []
-    }
-    this.handleAddProduct = this.handleAddProduct.bind(this);
-    this.handleRemoveProduct = this.handleRemoveProduct.bind(this);
-    this.handleCartClearence = this.handleCartClearence.bind(this);
-  }
-
-
-  handleAddProduct(product) {
-    const productExist = this.state.cartItems.find(item => {
-      return item.id === product.id;
-    });
-
-    if (productExist) {
-      this.setState({
-        cartItems: this.state.cartItems.map(item => item.id === product.id ? { ...productExist, quantity: productExist.quantity + 1 } : item),
-      });
-    }
-    else {
-      this.setState({
-        cartItems: [...this.state.cartItems, { ...product, quantity: 1 }]
-      });
+      setProducts: {
+        flag: false,
+        productsList: null
+      }
     }
   }
 
-  handleRemoveProduct(product) {
-    const productExist = this.state.cartItems.find(item => {
-      return item.id === product.id;
-    });
+   componentDidMount() {
+     this.getData();
+  }
 
-    if (productExist.quantity === 1) {
+  async getData() {
+    let backend_url = 'http://localhost:3300/products';
+    let response = await fetch(backend_url);
+    if (response.ok) {
+      let responseData = await response.json();
       this.setState({
-        cartItems: this.state.cartItems.filter(item => {
-          return item.id !== product.id;
-        })
-      });
-    }
-    else {
-      this.setState({
-        cartItems: this.state.cartItems.map(item => {
-          return item.id === product.id ?
-            { ...productExist, quantity: productExist.quantity - 1 } :
-            item
-        })
+        setProducts: { flag: true, productsList: responseData['productItems'] },
       })
     }
+    else {
+      console.log('error');
+    }
   }
 
-  handleCartClearence() {
-    this.setState({
-      cartItems: []
-    });
-  }
   render() {
+
+    const { flag, productsList } = this.state.setProducts;
     return (
-      <div>
-        <BrowserRouter>
-          <Header cartItems={this.state.cartItems} />
-          <Routes>
-            <Route exact path="/" element={<Products handleAddProduct={this.handleAddProduct} />} />
-            <Route exact path="/signup" element={<SignUp />} />
-            <Route exact path="/cart" element={<Cart cartItems={this.state.cartItems} handleAddProduct={this.handleAddProduct} handleRemoveProduct={this.handleRemoveProduct} handleCartClearence={this.handleCartClearence} />} />
-          </Routes>
-        </BrowserRouter>
-      </div>
+      (flag) ?
+        <div className='products-container'>
+          <div className="sort-button">
+            <Dropdown>
+              <Dropdown.Toggle variant="success" id='drowpdown-basic'>
+                Sort By
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item href="#/action-1" onClick={null}>A -to- Z</Dropdown.Item>
+                <Dropdown.Item href="#/action-2" onClick={null}>Z -to- A</Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item href="#/action-3" onClick={null}>High to Low</Dropdown.Item>
+                <Dropdown.Item href="#/action-4" onClick={null}>Low to High</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+          <div className='products'>
+            {productsList.map(item => {
+              return (
+                <div className='card' key={item.name}>
+                  <div>
+                    <img className='product-image' src={item.image} alt={item.image} />
+                  </div>
+                  <div>
+                    <h2 className='product-name'>{item.name}</h2>
+                  </div>
+                  <div className='product-price'>
+                    {item.price}/-
+                  </div>
+                  <div>
+                    <button className='product-add-button'
+                      onClick={() => this.handleAddProduct(item)}>Add to Cart</button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div> : <div><h1>Loading..!!</h1></div>
     );
   }
 }
