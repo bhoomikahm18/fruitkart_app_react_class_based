@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useState } from 'react'
+import React, { Component } from 'react'
 import './Products.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 // import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -7,16 +7,19 @@ export default class Products extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      setProducts: {
-        flag: false,
-        productsList: null
-      }
+      flag: false,
+      productsList: null
     }
+    this.sortAlphebetAcending = this.sortAlphebetAcending.bind(this);
+    this.sortAlphebetDecending = this.sortAlphebetDecending.bind(this);
+    this.sortPriceDecending = this.sortPriceDecending.bind(this);
+    this.sortPriceAcending = this.sortPriceAcending.bind(this);
   }
 
-   componentDidMount() {
-     this.getData();
+  componentDidMount() {
+    this.getData();
   }
+
 
   async getData() {
     let backend_url = 'http://localhost:3300/products';
@@ -24,19 +27,45 @@ export default class Products extends Component {
     if (response.ok) {
       let responseData = await response.json();
       this.setState({
-        setProducts: { flag: true, productsList: responseData['productItems'] },
+        flag: true, productsList: responseData['productItems'],
       })
     }
     else {
-      console.log('error');
+      console.log('some big error');
     }
+  }
+  sortAlphebetAcending() {
+    let productsCopy = [...this.state.productsList];
+    let sorted = productsCopy.sort((a, b) => {
+      return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
+    });
+    this.setState({ flag: true, productsList: sorted });
+  }
+
+  sortAlphebetDecending() {
+    let productsCopy = [...this.state.productsList];
+    let sorted = productsCopy.sort((a, b) => {
+      return (a.name.toLowerCase() < b.name.toLowerCase()) ? 1 : -1;
+    });
+    this.setState({ flag: true, productsList: sorted });
+  }
+
+  sortPriceAcending() {
+    let productsCopy = [...this.state.productsList];
+    let sorted = productsCopy.sort((a, b) => a.price - b.price);
+    this.setState({ flag: true, productsList: sorted });
+  }
+
+  sortPriceDecending() {
+    let productsCopy = [...this.state.productsList];
+    let sorted = productsCopy.sort((a, b) => b.price - a.price);
+    this.setState({ flag: true, productsList: sorted });
   }
 
   render() {
 
-    const { flag, productsList } = this.state.setProducts;
     return (
-      (flag) ?
+      (this.state.flag) ?
         <div className='products-container'>
           <div className="sort-button">
             <Dropdown>
@@ -44,16 +73,16 @@ export default class Products extends Component {
                 Sort By
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <Dropdown.Item href="#/action-1" onClick={null}>A -to- Z</Dropdown.Item>
-                <Dropdown.Item href="#/action-2" onClick={null}>Z -to- A</Dropdown.Item>
+                <Dropdown.Item href="#/action-1" onClick={this.sortAlphebetAcending}>A -to- Z</Dropdown.Item>
+                <Dropdown.Item href="#/action-2" onClick={this.sortAlphebetDecending}>Z -to- A</Dropdown.Item>
                 <Dropdown.Divider />
-                <Dropdown.Item href="#/action-3" onClick={null}>High to Low</Dropdown.Item>
-                <Dropdown.Item href="#/action-4" onClick={null}>Low to High</Dropdown.Item>
+                <Dropdown.Item href="#/action-3" onClick={this.sortPriceDecending}>High to Low</Dropdown.Item>
+                <Dropdown.Item href="#/action-4" onClick={this.sortPriceAcending}>Low to High</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </div>
           <div className='products'>
-            {productsList.map(item => {
+            {this.state.productsList.map(item => {
               return (
                 <div className='card' key={item.name}>
                   <div>
@@ -67,13 +96,13 @@ export default class Products extends Component {
                   </div>
                   <div>
                     <button className='product-add-button'
-                      onClick={() => this.handleAddProduct(item)}>Add to Cart</button>
+                      onClick={() => this.props.handleAddProduct(item)}>Add to Cart</button>
                   </div>
                 </div>
               )
             })}
           </div>
-        </div> : <div><h1>Loading..!!</h1></div>
+        </div> : <h1>Loading..!!</h1>
     );
   }
 }
