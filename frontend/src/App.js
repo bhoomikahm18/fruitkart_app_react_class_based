@@ -1,7 +1,7 @@
 import './App.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Products from './components/products/Products.jsx';
-import SignUp from './components/signup/SignUp.jsx';
+import Signup from './components/signup/Signup.jsx';
 import Cart from './components/cart/Cart.jsx';
 import { Component } from 'react';
 import Header from './components/header/Header.jsx';
@@ -70,7 +70,7 @@ export default class App extends Component {
           <Header cartItems={this.state.cartItems} />
           <Routes>
             <Route exact path="/" element={<Products handleAddProduct={this.handleAddProduct} />} />
-            <Route exact path="/signup" element={<SignUp />} />
+            <Route exact path="/signup" element={<Signup />} />
             <Route exact path="/cart" element={<Cart cartItems={this.state.cartItems} handleAddProduct={this.handleAddProduct} handleRemoveProduct={this.handleRemoveProduct} handleCartClearence={this.handleCartClearence} />} />
           </Routes>
         </BrowserRouter>
